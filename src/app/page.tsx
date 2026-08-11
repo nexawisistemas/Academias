@@ -1,69 +1,117 @@
-import Image from "next/image";
+import {
+  Activity,
+  ArrowUpRight,
+  BarChart3,
+  Building2,
+  Dumbbell,
+  Radio,
+  ShieldCheck,
+  Sparkles,
+  UsersRound,
+} from "lucide-react";
+
+const modules = [
+  { icon: UsersRound, label: "Alunos", value: "1.248", trend: "+12,4%" },
+  { icon: BarChart3, label: "Receita", value: "R$ 184k", trend: "+18,7%" },
+  { icon: Activity, label: "Check-ins", value: "436", trend: "hoje" },
+];
+
+const capabilities = [
+  { icon: Building2, title: "Multiunidade", copy: "Veja toda a rede ou mergulhe em cada operação." },
+  { icon: ShieldCheck, title: "Gestão segura", copy: "Tenancy, permissões e auditoria desde a fundação." },
+  { icon: Radio, title: "Operação ao vivo", copy: "Vendas, frequência e financeiro em uma única leitura." },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="landing-shell">
+      <div className="ambient ambient-one" />
+      <div className="ambient ambient-two" />
+      <div className="perspective-grid" />
+
+      <nav className="site-nav" aria-label="Navegação principal">
+        <a className="brand" href="#inicio" aria-label="NexaWi Academias — início">
+          <span className="brand-mark"><Dumbbell size={20} strokeWidth={2.4} /></span>
+          <span>NEXAWI <strong>ACADEMIAS</strong></span>
+        </a>
+        <div className="nav-links">
+          <a href="#plataforma">Plataforma</a>
+          <a href="#ecossistema">Ecossistema</a>
+          <a href="/login">Entrar</a>
+        </div>
+        <a className="nav-cta" href="/cadastro">Entrar na nova era <ArrowUpRight size={16} /></a>
+      </nav>
+
+      <section className="hero" id="inicio">
+        <div className="hero-copy">
+          <div className="eyebrow"><Sparkles size={14} /> O sistema operacional da sua academia</div>
+          <h1>Sua academia em<span> outro nível.</span></h1>
+          <p>
+            Gestão, vendas, financeiro, treinos e experiência do aluno conectados
+            em um ecossistema desenhado para crescer com você.
           </p>
+          <div className="hero-actions">
+            <a className="primary-action" href="/cadastro">Quero evoluir minha academia <ArrowUpRight size={18} /></a>
+            <a className="secondary-action" href="#plataforma"><span className="pulse-dot" /> Explorar plataforma</a>
+          </div>
+          <div className="trust-line">
+            <span>Multiempresa</span><i />
+            <span>Multiunidade</span><i />
+            <span>Dados em tempo real</span>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="hero-visual" aria-label="Prévia conceitual do dashboard NexaWi Academias">
+          <div className="orbit orbit-a" />
+          <div className="orbit orbit-b" />
+          <div className="dashboard-frame">
+            <div className="dashboard-topbar">
+              <div><span className="status-light" /> Visão geral <small>REDE NEXAWI</small></div>
+              <span className="live-badge">● AO VIVO</span>
+            </div>
+            <div className="metric-grid">
+              {modules.map(({ icon: Icon, label, value, trend }) => (
+                <article className="metric-card" key={label}>
+                  <div className="metric-icon"><Icon size={17} /></div>
+                  <span>{label}</span><strong>{value}</strong><small>{trend}</small>
+                </article>
+              ))}
+            </div>
+            <div className="chart-card">
+              <div className="chart-heading"><span>Performance da rede</span><strong>+24.8%</strong></div>
+              <div className="chart-bars" aria-hidden="true">
+                {[38, 52, 43, 69, 58, 82, 72, 94, 78, 100, 88, 116].map((height, index) => (
+                  <i key={index} style={{ height }} />
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="floating-chip chip-one"><span>IA</span> Insights prontos</div>
+          <div className="floating-chip chip-two"><Activity size={15} /> Operação sincronizada</div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="capability-strip" id="plataforma">
+        {capabilities.map(({ icon: Icon, title, copy }) => (
+          <article key={title}><Icon size={21} /><div><strong>{title}</strong><p>{copy}</p></div></article>
+        ))}
+      </section>
+
+      <section className="ecosystem" id="ecossistema">
+        <span className="section-kicker">UM ÚNICO ECOSSISTEMA</span>
+        <h2>Do primeiro lead ao próximo treino.</h2>
+        <p>A jornada inteira conectada, mensurável e pronta para escala.</p>
+        <div className="journey-line">
+          {["Visitante", "Lead", "Matrícula", "Acesso", "Treino", "Renovação"].map((item, index) => (
+            <div key={item}><span>{String(index + 1).padStart(2, "0")}</span><strong>{item}</strong></div>
+          ))}
+        </div>
+      </section>
+
+      <footer id="contato">
+        <div><strong>NexaWi Academias</strong><span>academias.nexawi.com.br</span></div>
+        <p>Construindo o futuro da gestão fitness.</p>
+      </footer>
+    </main>
   );
 }
