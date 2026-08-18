@@ -5,6 +5,7 @@ const navigation = [
   { href: "/plataforma", label: "Plataforma" },
   { href: "/site-da-academia", label: "Site da academia" },
   { href: "/planos", label: "Planos" },
+  { href: "/faq", label: "FAQ" },
   { href: "/sobre", label: "NexaWi" },
 ];
 

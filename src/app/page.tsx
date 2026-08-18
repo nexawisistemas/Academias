@@ -103,6 +103,20 @@ export default function Home() {
           {[{ label: "Comercial", text: "Leads, experimental e matrículas sem planilhas paralelas.", icon: Target }, { label: "Operação", text: "Alunos, unidades, equipe e acesso em uma leitura.", icon: Activity }, { label: "Experiência", text: "Portal do aluno, treinos, aulas e comunicação conectados.", icon: Sparkles }].map(({ label, text, icon: Icon }, index) => <article className="module-showcase-card" key={label}><span>0{index + 1}</span><Icon size={21} /><h3>{label}</h3><p>{text}</p><Link href="/plataforma">Ver arquitetura <ArrowUpRight size={14} /></Link></article>)}
         </div>
       </section>
+      <section className="full-stack">
+        <SectionHeading eyebrow="O QUE SUA ACADEMIA RECEBE" title="Tudo para captar, operar e reter." copy="Uma visão clara do que entra na sua operação — sem depender de planilhas, ferramentas soltas ou promessas vagas." />
+        <div className="full-stack-grid">
+          {[
+            ["01", "Captação e CRM", "Site, landing pages, leads, origem, experimental, follow-up e conversão."],
+            ["02", "Alunos e matrículas", "Cadastro, contratos, planos, status, renovações, pausas e cancelamentos."],
+            ["03", "Financeiro", "Mensalidades, cobranças, inadimplência, caixa e indicadores de receita."],
+            ["04", "Aulas e treinos", "Grade, vagas, professores, presença, avaliações e evolução do aluno."],
+            ["05", "Acesso e unidades", "Operação multiunidade preparada para catraca, QR Code e permissões por equipe."],
+            ["06", "Relacionamento", "Comunicação, reativação, aniversários, alertas e campanhas com contexto."],
+          ].map(([number, title, copy]) => <article key={title}><span>{number}</span><h3>{title}</h3><p>{copy}</p></article>)}
+        </div>
+        <div className="stack-actions"><Link className="outline-action" href="/plataforma">Ver todos os módulos <ArrowUpRight size={16} /></Link><Link className="text-action" href="/planos">Comparar planos e recursos <ArrowUpRight size={16} /></Link></div>
+      </section>
       <section className="home-site-banner">
         <div><span className="section-kicker">SEU SITE TAMBÉM É OPERAÇÃO</span><h2>Uma vitrine que já nasce conectada ao CRM.</h2><p>Sites por academia, campanhas, formulários e aulas experimentais entram na mesma jornada comercial da operação.</p><Link className="outline-action" href="/site-da-academia">Conhecer a estrutura do site <ArrowUpRight size={16} /></Link></div>
         <div className="mini-site-preview" aria-label="Prévia de site de academia"><div className="mini-site-top"><i /> <span>MOVE STUDIO</span><b>Menu</b></div><div className="mini-site-hero"><small>MOVE COM INTENÇÃO</small><strong>O seu próximo nível começa aqui.</strong><em>Agendar aula experimental</em></div><div className="mini-site-cards"><span>Funcional</span><span>Yoga</span><span>Musculação</span></div></div>
