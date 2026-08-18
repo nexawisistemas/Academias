@@ -80,6 +80,25 @@ test("migration cria a fundação e RLS isola organizações", async () => {
   const visibleOrganizations = await db.query("select slug from public.organizations order by slug");
   assert.deepEqual(visibleOrganizations.rows, [{ slug: "academia-alpha" }]);
 
+  const organizationResult = await db.query("select id from public.organizations where slug = 'academia-alpha'");
+  const organizationId = organizationResult.rows[0].id;
+  const branchResult = await db.query("select id from public.branches where organization_id = $1 and is_main", [organizationId]);
+  const planResult = await db.query(
+    "insert into public.membership_plans (organization_id,name,price_cents) values ($1,'Premium',19900) returning id",
+    [organizationId],
+  );
+  const leadResult = await db.query(
+    "insert into public.crm_leads (organization_id,branch_id,full_name,email,source) values ($1,$2,'Aluno Teste','aluno@example.com','site') returning id",
+    [organizationId, branchResult.rows[0].id],
+  );
+  const conversion = await db.query("select public.convert_lead_to_member($1,$2,$3) as member_id", [
+    leadResult.rows[0].id,
+    planResult.rows[0].id,
+    branchResult.rows[0].id,
+  ]);
+  const invoiceResult = await db.query("select amount_cents,status from public.invoices where member_id = $1", [conversion.rows[0].member_id]);
+  assert.deepEqual(invoiceResult.rows, [{ amount_cents: 19900, status: "open" }]);
+
   await assert.rejects(
     db.query("update public.profiles set platform_role = 'super_admin' where id = $1", [userOne]),
     /Somente um administrador da plataforma/,
