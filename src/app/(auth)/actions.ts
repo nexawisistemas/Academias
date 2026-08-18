@@ -15,6 +15,28 @@ function fields(formData: FormData) {
   return Object.fromEntries(formData.entries());
 }
 
+function signupErrorMessage(error: { message: string; code?: string; status?: number }) {
+  const message = error.message.toLowerCase();
+
+  if (message.includes("already registered") || message.includes("already exists")) {
+    return "Este e-mail já possui uma conta. Entre ou recupere sua senha para continuar.";
+  }
+
+  if (message.includes("rate limit") || message.includes("security purposes")) {
+    return "Muitas tentativas foram feitas agora. Aguarde alguns minutos antes de tentar novamente.";
+  }
+
+  if (message.includes("signup is disabled") || message.includes("signups not allowed")) {
+    return "O cadastro por e-mail está desativado no momento. Verifique essa opção no Supabase.";
+  }
+
+  if (message.includes("redirect") || message.includes("redirect_to")) {
+    return "A URL de confirmação ainda não está autorizada. Verifique a configuração de URLs no Supabase.";
+  }
+
+  return "Não foi possível criar a conta agora. Tente novamente em alguns minutos.";
+}
+
 export async function loginAction(_state: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = loginSchema.safeParse(fields(formData));
   if (!parsed.success) return { status: "error", errors: parsed.error.flatten().fieldErrors };
@@ -44,7 +66,10 @@ export async function signupAction(_state: ActionState, formData: FormData): Pro
     },
   });
 
-  if (error) return { status: "error", message: "Não foi possível criar a conta. Verifique os dados ou tente novamente." };
+  if (error) {
+    console.error("[auth.signup]", { code: error.code, status: error.status });
+    return { status: "error", message: signupErrorMessage(error) };
+  }
   if (!data.session) return { status: "success", message: "Conta criada. Confirme seu e-mail para continuar." };
   redirect("/onboarding");
 }
