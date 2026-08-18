@@ -3,12 +3,14 @@ import {
   ArrowUpRight,
   BarChart3,
   Building2,
-  Dumbbell,
   Radio,
   ShieldCheck,
   Sparkles,
+  Target,
   UsersRound,
 } from "lucide-react";
+import Link from "next/link";
+import { PublicShell, SectionHeading } from "@/components/marketing/public-shell";
 
 const modules = [
   { icon: UsersRound, label: "Alunos", value: "1.248", trend: "+12,4%" },
@@ -24,23 +26,11 @@ const capabilities = [
 
 export default function Home() {
   return (
-    <main className="landing-shell">
+    <PublicShell>
+      <main className="landing-shell">
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
       <div className="perspective-grid" />
-
-      <nav className="site-nav" aria-label="Navegação principal">
-        <a className="brand" href="#inicio" aria-label="NexaWi Academias — início">
-          <span className="brand-mark"><Dumbbell size={20} strokeWidth={2.4} /></span>
-          <span>NEXAWI <strong>ACADEMIAS</strong></span>
-        </a>
-        <div className="nav-links">
-          <a href="#plataforma">Plataforma</a>
-          <a href="#ecossistema">Ecossistema</a>
-          <a href="/login">Entrar</a>
-        </div>
-        <a className="nav-cta" href="/cadastro">Entrar na nova era <ArrowUpRight size={16} /></a>
-      </nav>
 
       <section className="hero" id="inicio">
         <div className="hero-copy">
@@ -51,8 +41,8 @@ export default function Home() {
             em um ecossistema desenhado para crescer com você.
           </p>
           <div className="hero-actions">
-            <a className="primary-action" href="/cadastro">Quero evoluir minha academia <ArrowUpRight size={18} /></a>
-            <a className="secondary-action" href="#plataforma"><span className="pulse-dot" /> Explorar plataforma</a>
+            <Link className="primary-action" href="/cadastro">Quero evoluir minha academia <ArrowUpRight size={18} /></Link>
+            <Link className="secondary-action" href="/plataforma"><span className="pulse-dot" /> Explorar plataforma</Link>
           </div>
           <div className="trust-line">
             <span>Multiempresa</span><i />
@@ -107,11 +97,17 @@ export default function Home() {
           ))}
         </div>
       </section>
-
-      <footer id="contato">
-        <div><strong>NexaWi Academias</strong><span>academias.nexawi.com.br</span></div>
-        <p>Construindo o futuro da gestão fitness.</p>
-      </footer>
-    </main>
+      <section className="home-modules">
+        <SectionHeading eyebrow="ARQUITETURA PRONTA PARA CRESCER" title="Uma base. Todas as jornadas." copy="O que a academia enxerga no painel, o aluno encontra no celular e o visitante sente no site." />
+        <div className="module-showcase">
+          {[{ label: "Comercial", text: "Leads, experimental e matrículas sem planilhas paralelas.", icon: Target }, { label: "Operação", text: "Alunos, unidades, equipe e acesso em uma leitura.", icon: Activity }, { label: "Experiência", text: "Portal do aluno, treinos, aulas e comunicação conectados.", icon: Sparkles }].map(({ label, text, icon: Icon }, index) => <article className="module-showcase-card" key={label}><span>0{index + 1}</span><Icon size={21} /><h3>{label}</h3><p>{text}</p><Link href="/plataforma">Ver arquitetura <ArrowUpRight size={14} /></Link></article>)}
+        </div>
+      </section>
+      <section className="home-site-banner">
+        <div><span className="section-kicker">SEU SITE TAMBÉM É OPERAÇÃO</span><h2>Uma vitrine que já nasce conectada ao CRM.</h2><p>Sites por academia, campanhas, formulários e aulas experimentais entram na mesma jornada comercial da operação.</p><Link className="outline-action" href="/site-da-academia">Conhecer a estrutura do site <ArrowUpRight size={16} /></Link></div>
+        <div className="mini-site-preview" aria-label="Prévia de site de academia"><div className="mini-site-top"><i /> <span>MOVE STUDIO</span><b>Menu</b></div><div className="mini-site-hero"><small>MOVE COM INTENÇÃO</small><strong>O seu próximo nível começa aqui.</strong><em>Agendar aula experimental</em></div><div className="mini-site-cards"><span>Funcional</span><span>Yoga</span><span>Musculação</span></div></div>
+      </section>
+      </main>
+    </PublicShell>
   );
 }

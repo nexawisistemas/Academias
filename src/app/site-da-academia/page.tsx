@@ -1,0 +1,17 @@
+import type { Metadata } from "next";
+import { ArrowUpRight, Check, Globe2, MonitorSmartphone, Route, Send, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { PublicShell, SectionHeading } from "@/components/marketing/public-shell";
+
+export const metadata: Metadata = { title: "Site da academia" };
+
+export default function GymSitePage() {
+  const flowSteps = [
+    { icon: Globe2, title: "Visitante", copy: "Chega por campanha ou indicação" },
+    { icon: Send, title: "Lead", copy: "Entra no CRM com origem e intenção" },
+    { icon: Route, title: "Experimental", copy: "Recepção recebe contexto para agir" },
+    { icon: MonitorSmartphone, title: "Matrícula", copy: "A jornada continua no portal" },
+  ];
+
+  return <PublicShell><main className="public-page"><section className="split-hero"><div><span className="eyebrow">SITE QUE VENDE E ORGANIZA</span><h1>Seu próximo aluno não deveria cair numa planilha.</h1><p>Cada academia terá um site próprio, com identidade visual, páginas essenciais e formulários conectados ao CRM desde o primeiro clique.</p><Link className="primary-action" href="/cadastro">Quero meu site conectado <ArrowUpRight size={18} /></Link></div><div className="browser-preview"><div className="browser-bar"><i /><i /><i /><span>academia.nexawi.com.br</span></div><div className="browser-body"><nav><b>AXIS</b><span>Planos&nbsp;&nbsp; Aulas&nbsp;&nbsp; Unidades</span></nav><div><small>ENERGIA PARA A SUA ROTINA</small><strong>Mais que treino.<br />Uma nova versão sua.</strong><em>Agendar experimental</em></div><footer><span>+1.800 alunos em movimento</span><span>Centro · Shopping · Norte</span></footer></div></div></section><section className="public-section"><SectionHeading eyebrow="ESTRUTURA VISÍVEL" title="Páginas prontas para a jornada de decisão." copy="Sem page builder infinito. Seções consistentes, rápidas e fáceis de manter pela própria academia." /><div className="site-page-grid">{[["Home","A mensagem, a prova e o próximo passo."],["Planos","Oferta clara, benefícios e chamada para matrícula."],["Modalidades","Aulas, professores e o que diferencia a operação."],["Unidades","Localização, estrutura e horário de cada espaço."],["Experimental","Formulário direto para o funil comercial."],["Contato","Canais, mapa e contexto para a conversa."]].map(([title, copy], index) => <article key={title}><span>{String(index + 1).padStart(2, "0")}</span><h3>{title}</h3><p>{copy}</p></article>)}</div></section><section className="site-flow"><div><span className="section-kicker">SITE + CRM</span><h2>Do primeiro interesse à primeira catraca.</h2><p>O site não é uma camada isolada: campanha, origem, unidade e plano de interesse seguem com o lead.</p></div><div className="site-flow-steps">{flowSteps.map(({ icon: Icon, title, copy }) => <article key={title}><Icon size={19} /><strong>{title}</strong><span>{copy}</span></article>)}</div></section><section className="public-section two-column-note"><div><Sparkles size={22} /><h2>Personalização sem caos.</h2><p>A academia controla cores, logo, fotos, textos, contatos, planos, FAQ e SEO. A experiência continua coerente em todas as páginas.</p></div><ul>{["Subdomínio automático por academia", "Domínio personalizado preparado", "Seções reutilizáveis e responsivas", "Captação com origem e UTMs"].map((item) => <li key={item}><Check size={16} />{item}</li>)}</ul></section></main></PublicShell>;
+}
