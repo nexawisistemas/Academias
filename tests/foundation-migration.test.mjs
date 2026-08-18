@@ -6,6 +6,7 @@ import { PGlite } from "@electric-sql/pglite";
 const migrationUrl = new URL("../supabase/migrations/20260810190000_initial_academias_foundation.sql", import.meta.url);
 const crmMigrationUrl = new URL("../supabase/migrations/20260817110000_crm_leads.sql", import.meta.url);
 const operationalMigrationUrl = new URL("../supabase/migrations/20260817123000_operational_core.sql", import.meta.url);
+const completenessMigrationUrl = new URL("../supabase/migrations/20260817170000_commercial_completeness.sql", import.meta.url);
 
 async function setIdentity(db, userId) {
   await db.exec("reset role");
@@ -44,6 +45,7 @@ test("migration cria a fundação e RLS isola organizações", async () => {
   await db.exec(migration);
   await db.exec(await readFile(crmMigrationUrl, "utf8"));
   await db.exec(await readFile(operationalMigrationUrl, "utf8"));
+  await db.exec(await readFile(completenessMigrationUrl, "utf8"));
 
   const tableResult = await db.query(`
     select count(*)::int as count
@@ -55,10 +57,10 @@ test("migration cria a fundação e RLS isola organizações", async () => {
         'domains','audit_logs','crm_leads','members','membership_plans','subscriptions',
         'invoices','payments','class_types','class_sessions','class_bookings','exercises',
         'workout_templates','workout_items','member_workouts','physical_assessments',
-        'access_events','crm_activities'
+        'access_events','crm_activities','member_contracts','communication_campaigns','retention_tasks'
       ])
   `);
-  assert.equal(tableResult.rows[0].count, 27);
+  assert.equal(tableResult.rows[0].count, 30);
 
   const permissionResult = await db.query("select count(*)::int as count from public.permissions");
   assert.equal(permissionResult.rows[0].count, 18);

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, BarChart3, Building2, CalendarDays, CircleDollarSign, ClipboardPlus, Dumbbell, Gauge, History, Layers3, Settings2, Target, UsersRound } from "lucide-react";
+import { Activity, BarChart3, Building2, CalendarDays, CircleDollarSign, ClipboardPlus, Dumbbell, Gauge, History, Layers3, MessageCircleMore, Settings2, Target, UsersRound } from "lucide-react";
 
 const items = [
   { href: "/dashboard", label: "Visão geral", icon: Gauge },
@@ -15,6 +15,7 @@ const items = [
   { href: "/dashboard/treinos", label: "Treinos", icon: Dumbbell },
   { href: "/dashboard/avaliacoes", label: "Avaliações", icon: ClipboardPlus },
   { href: "/dashboard/acesso", label: "Acesso", icon: Activity },
+  { href: "/dashboard/relacionamento", label: "Relacionamento", icon: MessageCircleMore },
   { href: "/dashboard/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/dashboard/equipe", label: "Equipe", icon: UsersRound },
   { href: "/dashboard/auditoria", label: "Auditoria", icon: History },
