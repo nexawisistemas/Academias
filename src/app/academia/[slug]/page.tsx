@@ -28,7 +28,7 @@ import { captureGymLeadAction } from "./actions";
 import { createOperationalClient, money } from "@/lib/supabase/operational";
 import styles from "./page.module.css";
 
-type GymBranding = { demo?:boolean;logo_url?:string;eyebrow?:string;headline?:string;headline_accent?:string;description?:string;primary_color?:string;instagram?:string;hours?:string[];modalities?:Array<{title:string;description:string}>;team?:Array<{name:string;role:string;specialty:string}>;seo_title?:string;seo_description?:string };
+type GymBranding = { demo?:boolean;logo_url?:string;hero_image_url?:string;eyebrow?:string;headline?:string;headline_accent?:string;description?:string;primary_color?:string;instagram?:string;hours?:string[];modalities?:Array<{title:string;description:string}>;team?:Array<{name:string;role:string;specialty:string}>;faq?:Array<{question:string;answer:string}>;differentials?:string[];seo_title?:string;seo_description?:string };
 type SiteData = {
   organization: { name: string; slug: string; phone?: string; email?:string };
   branding: GymBranding;
@@ -141,7 +141,7 @@ export async function generateMetadata({
       title,
       description,
       type: "website",
-      images: [{ url: "/images/gym-site/hero-training.png", width: 1792, height: 896 }],
+      images: [{ url: site.branding.hero_image_url || "/images/gym-site/hero-training.png", width: 1792, height: 896 }],
     },
   };
 }
@@ -161,6 +161,9 @@ export default async function GymPublicPage({
   const branding=site.branding||{};
   const primaryColor=/^#[0-9a-f]{6}$/i.test(branding.primary_color||"")?branding.primary_color:"#8bff2e";
   const modalities=modalityCards.map((item,index)=>({...item,...(branding.modalities?.[index]||{})}));
+  const siteFaq=branding.faq?.filter((item)=>item.question&&item.answer).length?branding.faq:faqItems;
+  const defaultDifferentials=["Olhar completo para sua evolução","Orientação desde o primeiro treino","Ambiente que coloca você em movimento","Uma jornada que cabe na sua rotina"];
+  const differentials=branding.differentials?.filter(Boolean).length?branding.differentials:defaultDifferentials;
   const phoneHref = site.organization.phone
     ? `tel:${site.organization.phone.replace(/[^+\d]/g, "")}`
     : "#experimental";
@@ -170,7 +173,7 @@ export default async function GymPublicPage({
       {branding.demo&&<div className={styles.demoNotice}>DEMONSTRAÇÃO FICTÍCIA · MARCA, NOMES, CONTATOS, PLANOS E ENDEREÇO SÃO ILUSTRATIVOS</div>}
       <header className={styles.header}>
         <a className={styles.brand} href="#inicio" aria-label={`${site.organization.name}, início`}>
-          {branding.logo_url?<Image src={branding.logo_url} alt={site.organization.name} width={190} height={51} className={styles.brandLogo} loading="eager"/>:<><span className={styles.brandMark}><Dumbbell size={19} strokeWidth={2.4} /></span><span>{site.organization.name}</span></>}
+          {branding.logo_url?<Image src={branding.logo_url} alt={site.organization.name} width={190} height={51} className={styles.brandLogo} loading="eager" unoptimized/>:<><span className={styles.brandMark}><Dumbbell size={19} strokeWidth={2.4} /></span><span>{site.organization.name}</span></>}
         </a>
         <nav className={styles.nav} aria-label="Navegação principal">
           <a href="#modalidades">Modalidades</a>
@@ -184,14 +187,7 @@ export default async function GymPublicPage({
       </header>
 
       <section id="inicio" className={styles.hero}>
-        <Image
-          className={styles.heroImage}
-          src="/images/gym-site/hero-training.png"
-          alt="Atletas treinando com pesos em uma academia contemporânea"
-          fill
-          priority
-          sizes="100vw"
-        />
+        <Image className={styles.heroImage} src={branding.hero_image_url || "/images/gym-site/hero-training.png"} alt="Atletas treinando com pesos em uma academia contemporânea" fill priority sizes="100vw" unoptimized={Boolean(branding.hero_image_url)} />
         <div className={styles.heroShade} />
         <div className={styles.heroGrid} />
         <div className={styles.heroContent}>
@@ -211,10 +207,7 @@ export default async function GymPublicPage({
       </section>
 
       <section id="movimento" className={styles.proofStrip} aria-label="Diferenciais da experiência">
-        <article><strong>360º</strong><span>Olhar completo para sua evolução</span></article>
-        <article><strong>1:1</strong><span>Orientação desde o primeiro treino</span></article>
-        <article><strong>+ energia</strong><span>Ambiente que coloca você em movimento</span></article>
-        <article><strong>Seu ritmo</strong><span>Uma jornada que cabe na sua rotina</span></article>
+        {differentials.slice(0,4).map((item,index)=><article key={item}><strong>0{index+1}</strong><span>{item}</span></article>)}
       </section>
 
       <section id="modalidades" className={styles.modalities}>
@@ -363,7 +356,7 @@ export default async function GymPublicPage({
           <div className={styles.faqNote}><Clock3 size={17} /><span>Leva menos de um minuto para solicitar sua experiência.</span></div>
         </div>
         <div className={styles.faqList}>
-          {faqItems.map((item, index) => (
+          {siteFaq.map((item, index) => (
             <details key={item.question} open={index === 0}>
               <summary><span>0{index + 1}</span>{item.question}<ChevronRight size={18} /></summary>
               <p>{item.answer}</p>
@@ -406,7 +399,7 @@ export default async function GymPublicPage({
       </section>
 
       <footer className={styles.footer}>
-        <a className={styles.brand} href="#inicio">{branding.logo_url?<Image src={branding.logo_url} alt={site.organization.name} width={180} height={48} className={styles.brandLogo}/>:<><span className={styles.brandMark}><Dumbbell size={18} /></span><span>{site.organization.name}</span></>}</a>
+        <a className={styles.brand} href="#inicio">{branding.logo_url?<Image src={branding.logo_url} alt={site.organization.name} width={180} height={48} className={styles.brandLogo} unoptimized/>:<><span className={styles.brandMark}><Dumbbell size={18} /></span><span>{site.organization.name}</span></>}</a>
         <p>Movimento muda tudo. Comece pelo seu.</p>
         <div><a href="#planos">Planos</a><a href="#unidades">Unidades</a>{branding.instagram&&<span>{branding.instagram}</span>}<a href="#experimental">Contato</a></div>
         <small>{branding.demo?"Academia e informações fictícias para demonstração comercial · Imagens ilustrativas":"Imagens ilustrativas"} · Site criado com NexaWi Academias</small>

@@ -1,4 +1,5 @@
 import { Bell, Dumbbell, LogOut, Search } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getUserContext, isPlatformOperator } from "@/lib/auth/session";
 import { logoutAction } from "@/app/(auth)/actions";
@@ -27,7 +28,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <main className="dashboard-main">
         <header className="dashboard-topbar">
           <div><small>{organization ? "OPERAÇÃO CONECTADA" : "GESTÃO DA PLATAFORMA"}</small><strong>{contextLabel}</strong></div>
-          <div className="topbar-actions"><button className="topbar-icon" aria-label="Buscar"><Search size={16} /></button><button className="topbar-icon" aria-label="Notificações"><Bell size={16} /></button><span className="profile-orb" title={name}>{initials}</span></div>
+          <div className="topbar-actions"><Link href="/dashboard/busca" className="topbar-icon" aria-label="Buscar"><Search size={16} /></Link><Link href="/dashboard/relacionamento" className="topbar-icon" aria-label="Alertas e relacionamento"><Bell size={16} /></Link><span className="profile-orb" title={name}>{initials}</span></div>
         </header>
         <div className="dashboard-content">{children}</div>
       </main>

@@ -7,6 +7,7 @@ const migrationUrl = new URL("../supabase/migrations/20260810190000_initial_acad
 const crmMigrationUrl = new URL("../supabase/migrations/20260817110000_crm_leads.sql", import.meta.url);
 const operationalMigrationUrl = new URL("../supabase/migrations/20260817123000_operational_core.sql", import.meta.url);
 const completenessMigrationUrl = new URL("../supabase/migrations/20260817170000_commercial_completeness.sql", import.meta.url);
+const dashboardMigrationUrl = new URL("../supabase/migrations/20260824203000_dashboard_operational_completeness.sql", import.meta.url);
 
 async function setIdentity(db, userId) {
   await db.exec("reset role");
@@ -25,6 +26,7 @@ test("migration cria a fundação e RLS isola organizações", async () => {
     create schema auth;
     create table auth.users (
       id uuid primary key,
+      email text,
       raw_user_meta_data jsonb not null default '{}'::jsonb
     );
     create function auth.uid() returns uuid language sql stable as $$
@@ -46,6 +48,7 @@ test("migration cria a fundação e RLS isola organizações", async () => {
   await db.exec(await readFile(crmMigrationUrl, "utf8"));
   await db.exec(await readFile(operationalMigrationUrl, "utf8"));
   await db.exec(await readFile(completenessMigrationUrl, "utf8"));
+  await db.exec(await readFile(dashboardMigrationUrl, "utf8"));
 
   const tableResult = await db.query(`
     select count(*)::int as count
@@ -57,19 +60,20 @@ test("migration cria a fundação e RLS isola organizações", async () => {
         'domains','audit_logs','crm_leads','members','membership_plans','subscriptions',
         'invoices','payments','class_types','class_sessions','class_bookings','exercises',
         'workout_templates','workout_items','member_workouts','physical_assessments',
-        'access_events','crm_activities','member_contracts','communication_campaigns','retention_tasks'
+        'access_events','crm_activities','member_contracts','communication_campaigns','retention_tasks',
+        'expenses','team_invitations'
       ])
   `);
-  assert.equal(tableResult.rows[0].count, 30);
+  assert.equal(tableResult.rows[0].count, 32);
 
   const permissionResult = await db.query("select count(*)::int as count from public.permissions");
   assert.equal(permissionResult.rows[0].count, 18);
 
   const userOne = "10000000-0000-4000-8000-000000000001";
   const userTwo = "20000000-0000-4000-8000-000000000002";
-  await db.query("insert into auth.users (id, raw_user_meta_data) values ($1, $2::jsonb), ($3, $4::jsonb)", [
-    userOne, JSON.stringify({ full_name: "Owner Alpha" }),
-    userTwo, JSON.stringify({ full_name: "Owner Beta" }),
+  await db.query("insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb), ($4, $5, $6::jsonb)", [
+    userOne, "owner.alpha@example.com", JSON.stringify({ full_name: "Owner Alpha" }),
+    userTwo, "owner.beta@example.com", JSON.stringify({ full_name: "Owner Beta" }),
   ]);
 
   await setIdentity(db, userOne);
@@ -101,6 +105,18 @@ test("migration cria a fundação e RLS isola organizações", async () => {
   const invoiceResult = await db.query("select amount_cents,status from public.invoices where member_id = $1", [conversion.rows[0].member_id]);
   assert.deepEqual(invoiceResult.rows, [{ amount_cents: 19900, status: "open" }]);
 
+  const expenseResult = await db.query("insert into public.expenses (organization_id,description,amount_cents,due_date) values ($1,'Energia',85000,current_date) returning status", [organizationId]);
+  assert.deepEqual(expenseResult.rows, [{ status: "planned" }]);
+  const roleResult = await db.query("select id from public.roles where code = 'manager' and organization_id is null");
+  await db.query("select public.create_team_invitation($1,$2,$3,null)", [organizationId, "owner.beta@example.com", roleResult.rows[0].id]);
+
+  await setIdentity(db, userTwo);
+  const claimed = await db.query("select public.claim_pending_team_invitations() as count");
+  assert.deepEqual(claimed.rows, [{ count: 1 }]);
+  const alphaMembership = await db.query("select count(*)::int as count from public.organization_memberships where organization_id = $1 and profile_id = $2 and status = 'active'", [organizationId, userTwo]);
+  assert.equal(alphaMembership.rows[0].count, 1);
+
+  await setIdentity(db, userOne);
   await assert.rejects(
     db.query("update public.profiles set platform_role = 'super_admin' where id = $1", [userOne]),
     /Somente um administrador da plataforma/,

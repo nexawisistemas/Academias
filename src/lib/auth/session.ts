@@ -17,6 +17,10 @@ export async function getUserContext() {
   const user = await requireUser();
   const supabase = await createClient();
 
+  // Idempotente: ao entrar com o e-mail convidado, o vínculo pendente é aceito
+  // antes de carregarmos a organização ativa.
+  await supabase.rpc("claim_pending_team_invitations" as never);
+
   const [{ data: profile }, { data: memberships, error }] = await Promise.all([
     supabase.from("profiles").select("id, full_name, phone, avatar_path, platform_role").eq("id", user.id).maybeSingle(),
     supabase
