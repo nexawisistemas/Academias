@@ -1,9 +1,10 @@
-import { FileSignature, Layers3, PauseCircle, Plus } from "lucide-react";
+import { CreditCard, FileSignature, Layers3, PauseCircle, Plus } from "lucide-react";
 import { requireOrganization } from "@/lib/auth/session";
 import { createOperationalClient, money, shortDate } from "@/lib/supabase/operational";
 import { createContractAction, createPlanAction, createSubscriptionAction, updateContractStatusAction, updatePlanStatusAction, updateSubscriptionStatusAction } from "../operational-actions";
 import { ActionForm } from "../action-form";
 import { buttonClass, inputClass, PageTitle } from "../ui";
+import { createPaymentCheckoutAction } from "../financeiro/payment-actions";
 
 const cycle: Record<string, string> = { monthly: "Mensal", quarterly: "Trimestral", semiannual: "Semestral", annual: "Anual" };
 
@@ -11,12 +12,14 @@ export default async function PlansPage() {
   const context = await requireOrganization();
   const organization = context.activeOrganization as unknown as { id: string };
   const db = await createOperationalClient();
-  const [{ data: plans }, { data: members }, { data: branches }, { data: subscriptions }, { data: contracts }] = await Promise.all([
+  const [{ data: plans }, { data: members }, { data: branches }, { data: subscriptions }, { data: contracts }, { data: gateways }, { data: providerSubscriptions }] = await Promise.all([
     db.from("membership_plans").select("*").eq("organization_id", organization.id).order("active", { ascending: false }).order("price_cents"),
     db.from("members").select("id,full_name").eq("organization_id", organization.id).eq("status", "active").order("full_name"),
     db.from("branches").select("id,name").eq("organization_id", organization.id).eq("status", "active"),
     db.from("subscriptions").select("id,status,amount_cents,discount_cents,starts_on,next_billing_on,member_id,member:members(full_name),plan:membership_plans(name)").eq("organization_id", organization.id).order("created_at", { ascending: false }).limit(100),
     db.from("member_contracts").select("id,title,status,terms_version,created_at,member:members(full_name)").eq("organization_id", organization.id).order("created_at", { ascending: false }).limit(50),
+    db.from("payment_provider_connections").select("id,provider,status").eq("organization_id", organization.id).eq("status", "active"),
+    db.from("payment_provider_subscriptions").select("connection_id,subscription_id,mode,status").eq("organization_id", organization.id),
   ]);
   const activeSubscriptions = subscriptions?.filter((item) => item.status === "active").length ?? 0;
 
@@ -71,10 +74,12 @@ export default async function PlansPage() {
       <header className="border-b border-emerald-100/10 p-5"><h2 className="font-semibold">Matrículas e recorrências</h2><p className="mt-1 text-xs text-emerald-50/35">Pause, reative ou encerre vínculos sem perder o histórico.</p></header>
       {subscriptions?.length ? subscriptions.map((subscription) => {
         const member = subscription.member as unknown as { full_name?: string }; const plan = subscription.plan as unknown as { name?: string };
-        return <article className="grid gap-3 border-b border-emerald-100/[.06] p-4 last:border-0 lg:grid-cols-[1.2fr_1fr_.8fr_auto] lg:items-center" key={subscription.id}>
+        const bindings = providerSubscriptions?.filter((item) => item.subscription_id === subscription.id) || [];
+        return <article className="grid gap-3 border-b border-emerald-100/[.06] p-4 last:border-0 lg:grid-cols-[1.1fr_.8fr_.7fr_1.1fr_auto] lg:items-center" key={subscription.id}>
           <div><strong className="text-sm">{member?.full_name}</strong><span className="block text-[10px] text-emerald-50/35">{plan?.name} · desde {shortDate(subscription.starts_on)}</span></div>
           <div><strong className="text-sm">{money(subscription.amount_cents - subscription.discount_cents)}</strong><span className="block text-[10px] text-emerald-50/35">Próxima: {shortDate(subscription.next_billing_on)}</span></div>
           <span className="w-fit rounded-full bg-emerald-300/10 px-2 py-1 text-[9px] font-bold text-emerald-300">{subscription.status.toUpperCase()}</span>
+          <div className="flex flex-wrap gap-1">{gateways?.map((gateway) => { const binding = bindings.find((item) => item.connection_id === gateway.id); const configured = binding && ["pending", "active"].includes(binding.status); return <div key={gateway.id}>{configured ? <span className="rounded-lg bg-cyan-300/10 px-2 py-1 text-[9px] font-bold text-cyan-200">{gateway.provider === "asaas" ? (binding.status === "pending" ? "ASAAS AGUARDANDO" : "ASAAS AUTOMÁTICO") : "INFINITEPAY VINCULADO"}</span> : <ActionForm action={createPaymentCheckoutAction}><input type="hidden" name="provider" value={gateway.provider} /><input type="hidden" name="target_type" value="subscription" /><input type="hidden" name="target_id" value={subscription.id} /><button className="flex items-center gap-1 rounded-lg border border-cyan-300/20 px-2 py-2 text-[9px] font-bold text-cyan-200"><CreditCard size={11} />{gateway.provider === "asaas" ? "Ativar automático" : "Gerar mensalidade"}</button></ActionForm>}</div>; })}{!gateways?.length && <span className="text-[9px] text-amber-200/65">Configure um gateway no Financeiro</span>}</div>
           <ActionForm action={updateSubscriptionStatusAction} className="flex gap-2"><input type="hidden" name="subscription_id" value={subscription.id} /><select className={`${inputClass} py-2 text-[10px]`} name="status" defaultValue={subscription.status}><option value="active">Ativa</option><option value="paused">Pausada</option><option value="overdue">Inadimplente</option><option value="ended">Encerrada</option><option value="cancelled">Cancelada</option></select><button className="rounded-lg border border-emerald-300/20 px-3 text-[10px] font-bold text-emerald-300">Salvar</button></ActionForm>
         </article>;
       }) : <p className="p-8 text-center text-xs text-emerald-50/30">Nenhuma matrícula cadastrada.</p>}

@@ -1,9 +1,11 @@
-import { AlertTriangle, ArrowDownCircle, CheckCircle2, CircleDollarSign, Plus, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangle, ArrowDownCircle, CheckCircle2, CircleDollarSign, CreditCard, ExternalLink, Plus, RefreshCw, Settings2 } from "lucide-react";
 import { requireOrganization } from "@/lib/auth/session";
 import { createOperationalClient, money, shortDate } from "@/lib/supabase/operational";
 import { createExpenseAction, generateInvoicesAction, registerPaymentAction, updateExpenseStatusAction, updateInvoiceStatusAction } from "../operational-actions";
 import { ActionForm } from "../action-form";
 import { buttonClass, inputClass, PageTitle } from "../ui";
+import { createPaymentCheckoutAction } from "./payment-actions";
 
 export default async function FinancePage() {
   const context = await requireOrganization();
@@ -11,11 +13,12 @@ export default async function FinancePage() {
   const db = await createOperationalClient();
   const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
   const monthEnd = new Date(monthStart); monthEnd.setMonth(monthEnd.getMonth() + 1);
-  const [{ data: invoices }, { data: payments }, { data: expenses }, { data: branches }] = await Promise.all([
-    db.from("invoices").select("id,description,amount_cents,due_date,status,paid_at,member:members(full_name)").eq("organization_id", organization.id).order("due_date", { ascending: false }).limit(200),
+  const [{ data: invoices }, { data: payments }, { data: expenses }, { data: branches }, { data: gateways }] = await Promise.all([
+    db.from("invoices").select("id,description,amount_cents,due_date,status,paid_at,payment_provider,payment_url,provider_status,member:members(full_name)").eq("organization_id", organization.id).order("due_date", { ascending: false }).limit(200),
     db.from("payments").select("amount_cents,paid_at").eq("organization_id", organization.id).eq("status", "confirmed").gte("paid_at", monthStart.toISOString()).lt("paid_at", monthEnd.toISOString()),
     db.from("expenses").select("id,description,supplier,category,amount_cents,due_date,status,payment_method,branch:branches(name)").eq("organization_id", organization.id).order("due_date", { ascending: false }).limit(200),
     db.from("branches").select("id,name").eq("organization_id", organization.id).eq("status", "active").order("name"),
+    db.from("payment_provider_connections").select("provider,status").eq("organization_id", organization.id).eq("status", "active"),
   ]);
   const today = new Date().toISOString().slice(0, 10);
   const received = payments?.reduce((sum, item) => sum + item.amount_cents, 0) ?? 0;
@@ -26,7 +29,7 @@ export default async function FinancePage() {
   return <>
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <PageTitle eyebrow="CONTROLE FINANCEIRO" title="Financeiro" description="Receitas, cobranças, despesas e inadimplência com histórico auditável." />
-      <ActionForm action={generateInvoicesAction}><button className="flex items-center gap-2 rounded-full border border-emerald-300/20 px-4 py-3 text-xs font-bold text-emerald-300"><RefreshCw size={14} />Gerar recorrências</button></ActionForm>
+      <div className="flex flex-wrap gap-2"><Link href="/dashboard/financeiro/integracoes" className="flex items-center gap-2 rounded-full border border-cyan-300/20 px-4 py-3 text-xs font-bold text-cyan-200"><Settings2 size={14} />Gateways</Link><ActionForm action={generateInvoicesAction}><button className="flex items-center gap-2 rounded-full border border-emerald-300/20 px-4 py-3 text-xs font-bold text-emerald-300"><RefreshCw size={14} />Gerar recorrências</button></ActionForm></div>
     </div>
     <section className="metric-dashboard-grid mt-8">
       <article className="dashboard-metric"><header>Recebido no mês<span><CheckCircle2 size={16} /></span></header><strong>{money(received)}</strong><small>pagamentos confirmados</small></article>
@@ -59,6 +62,8 @@ export default async function FinancePage() {
             <div><strong className="text-sm">{member?.full_name}</strong><span className="block text-[10px] text-emerald-50/35">{invoice.description} · vence {shortDate(invoice.due_date)}</span></div>
             <div><strong className="text-sm">{money(invoice.amount_cents)}</strong><span className={`block text-[9px] font-bold ${invoice.status === "paid" ? "text-emerald-300" : isOverdue ? "text-rose-300" : "text-amber-300"}`}>{invoice.status === "paid" ? "PAGO" : isOverdue ? "VENCIDO" : invoice.status.toUpperCase()}</span></div>
             {invoice.status !== "paid" && invoice.status !== "cancelled" && <div className="grid gap-2">
+              {!!gateways?.length && <div className="flex flex-wrap gap-1">{gateways.map((gateway) => <ActionForm action={createPaymentCheckoutAction} key={gateway.provider}><input type="hidden" name="provider" value={gateway.provider} /><input type="hidden" name="target_type" value="invoice" /><input type="hidden" name="target_id" value={invoice.id} /><button className="flex items-center gap-1 rounded-lg border border-emerald-300/20 px-3 py-2 text-[9px] font-bold text-emerald-200"><CreditCard size={12} />{gateway.provider === "asaas" ? "Cobrar Asaas" : "Cobrar InfinitePay"}</button></ActionForm>)}</div>}
+              {invoice.payment_url && <a href={invoice.payment_url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[9px] font-bold text-cyan-200"><ExternalLink size={11} />Abrir último link · {invoice.payment_provider}</a>}
               <ActionForm action={registerPaymentAction} className="flex gap-2"><input type="hidden" name="invoice_id" value={invoice.id} /><select className={`${inputClass} py-2 text-[10px]`} name="method"><option value="pix">Pix</option><option value="credit_card">Crédito</option><option value="debit_card">Débito</option><option value="cash">Dinheiro</option><option value="transfer">Transferência</option></select><button className={`${buttonClass} py-2`}>Receber</button></ActionForm>
               <ActionForm action={updateInvoiceStatusAction}><input type="hidden" name="invoice_id" value={invoice.id} /><input type="hidden" name="status" value="cancelled" /><button className="text-[9px] font-bold text-rose-200/70">Cancelar cobrança</button></ActionForm>
             </div>}

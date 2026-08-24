@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import type { ActionResult } from "./action-types";
 
 type Props = Omit<React.FormHTMLAttributes<HTMLFormElement>, "action"> & {
@@ -18,6 +18,10 @@ export function ActionForm({ action, children, ...props }: Props) {
     },
     null,
   );
+
+  useEffect(() => {
+    if (state?.ok && state.redirectTo) window.location.assign(state.redirectTo);
+  }, [state]);
 
   return (
     <form {...props} action={formAction} aria-busy={pending}>

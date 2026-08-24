@@ -8,6 +8,7 @@ const crmMigrationUrl = new URL("../supabase/migrations/20260817110000_crm_leads
 const operationalMigrationUrl = new URL("../supabase/migrations/20260817123000_operational_core.sql", import.meta.url);
 const completenessMigrationUrl = new URL("../supabase/migrations/20260817170000_commercial_completeness.sql", import.meta.url);
 const dashboardMigrationUrl = new URL("../supabase/migrations/20260824203000_dashboard_operational_completeness.sql", import.meta.url);
+const paymentMigrationUrl = new URL("../supabase/migrations/20260824220000_payment_gateway_foundation.sql", import.meta.url);
 
 async function setIdentity(db, userId) {
   await db.exec("reset role");
@@ -49,6 +50,7 @@ test("migration cria a fundação e RLS isola organizações", async () => {
   await db.exec(await readFile(operationalMigrationUrl, "utf8"));
   await db.exec(await readFile(completenessMigrationUrl, "utf8"));
   await db.exec(await readFile(dashboardMigrationUrl, "utf8"));
+  await db.exec(await readFile(paymentMigrationUrl, "utf8"));
 
   const tableResult = await db.query(`
     select count(*)::int as count
@@ -61,10 +63,11 @@ test("migration cria a fundação e RLS isola organizações", async () => {
         'invoices','payments','class_types','class_sessions','class_bookings','exercises',
         'workout_templates','workout_items','member_workouts','physical_assessments',
         'access_events','crm_activities','member_contracts','communication_campaigns','retention_tasks',
-        'expenses','team_invitations'
+        'expenses','team_invitations','payment_provider_connections','payment_provider_customers',
+        'payment_provider_subscriptions','payment_checkout_sessions','payment_webhook_events'
       ])
   `);
-  assert.equal(tableResult.rows[0].count, 32);
+  assert.equal(tableResult.rows[0].count, 37);
 
   const permissionResult = await db.query("select count(*)::int as count from public.permissions");
   assert.equal(permissionResult.rows[0].count, 18);
@@ -107,6 +110,8 @@ test("migration cria a fundação e RLS isola organizações", async () => {
 
   const expenseResult = await db.query("insert into public.expenses (organization_id,description,amount_cents,due_date) values ($1,'Energia',85000,current_date) returning status", [organizationId]);
   assert.deepEqual(expenseResult.rows, [{ status: "planned" }]);
+  const gatewayResult = await db.query("insert into public.payment_provider_connections (organization_id,provider,environment,status,credentials_ciphertext,created_by) values ($1,'asaas','sandbox','draft','encrypted',$2) returning provider,status", [organizationId, userOne]);
+  assert.deepEqual(gatewayResult.rows, [{ provider: "asaas", status: "draft" }]);
   const roleResult = await db.query("select id from public.roles where code = 'manager' and organization_id is null");
   await db.query("select public.create_team_invitation($1,$2,$3,null)", [organizationId, "owner.beta@example.com", roleResult.rows[0].id]);
 
