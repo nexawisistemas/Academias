@@ -40,7 +40,10 @@ export async function getUserContext() {
 
 export async function requireOrganization() {
   const context = await getUserContext();
-  if (!context.activeOrganization) redirect("/onboarding");
+  if (!context.activeOrganization) {
+    if (isPlatformOperator(context)) redirect("/dashboard/plataforma");
+    redirect("/onboarding");
+  }
   return context;
 }
 

@@ -22,8 +22,9 @@ const items = [
   { href: "/dashboard/configuracoes", label: "Config.", icon: Settings2 },
 ];
 
-export function DashboardNav({ isPlatformAdmin = false }: { isPlatformAdmin?: boolean }) {
+export function DashboardNav({ isPlatformAdmin = false, hasOrganization = true }: { isPlatformAdmin?: boolean; hasOrganization?: boolean }) {
   const pathname = usePathname();
-  const visibleItems = isPlatformAdmin ? [...items, { href: "/dashboard/plataforma", label: "NexaWi", icon: SlidersHorizontal }] : items;
+  const organizationItems = hasOrganization ? items : [];
+  const visibleItems = isPlatformAdmin ? [...organizationItems, { href: "/dashboard/plataforma", label: "Admin NexaWi", icon: SlidersHorizontal }] : organizationItems;
   return <nav className="dashboard-nav" aria-label="Navegação do painel">{visibleItems.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={pathname === href || pathname.startsWith(`${href}/`) ? "active" : ""}><Icon size={17} />{label}</Link>)}</nav>;
 }
