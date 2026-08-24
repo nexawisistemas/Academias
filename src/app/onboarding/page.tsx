@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Dumbbell, Sparkles } from "lucide-react";
-import { getUserContext } from "@/lib/auth/session";
+import { getUserContext, isPlatformOperator } from "@/lib/auth/session";
 import { OnboardingForm } from "./onboarding-form";
 
 export default async function OnboardingPage() {
   const context = await getUserContext();
+  if (isPlatformOperator(context)) redirect("/dashboard/plataforma");
   if (context.activeOrganization) redirect("/dashboard");
 
   return (
