@@ -1,5 +1,17 @@
-import Link from "next/link";
-
-export default function TermsPage() {
-  return <main className="min-h-screen bg-[#020706] px-6 py-20 text-emerald-50"><article className="mx-auto max-w-3xl"><Link href="/" className="text-sm font-bold text-emerald-300">← NexaWi Academias</Link><h1 className="mt-10 text-4xl font-semibold tracking-tight">Termos de Uso</h1><p className="mt-6 leading-8 text-emerald-50/55">Documento provisório para o ambiente de desenvolvimento. A versão jurídica, sua data de vigência e o registro de aceite serão definidos antes do lançamento público.</p></article></main>;
-}
+import type { Metadata } from "next";
+import { LegalPage } from "@/components/marketing/legal-page";
+import { company } from "@/lib/marketing-config";
+export const metadata: Metadata = { title: "Termos de Uso" };
+export default function TermsPage(){return <LegalPage eyebrow="REGRAS DA PLATAFORMA" title="Termos de Uso" intro="Condições gerais para acesso ao site e ao software NexaWi Academias.">
+  <h2>1. Aceite e elegibilidade</h2><p>Ao criar uma conta, solicitar teste ou utilizar a plataforma, o usuário declara possuir capacidade e autorização para representar a academia contratante e aceita estes Termos, a Política de Privacidade e o contrato comercial aplicável.</p>
+  <h2>2. Objeto</h2><p>A NexaWi disponibiliza software como serviço para gestão de academias, incluindo os módulos previstos no plano contratado. Recursos, limites, integrações, implantação e suporte constam da proposta e do contrato. Funcionalidades anunciadas como futuras, beta ou dependentes de terceiros não integram o escopo até confirmação expressa.</p>
+  <h2>3. Conta e responsabilidades</h2><p>O cliente deve manter dados corretos, proteger suas credenciais, conceder o menor acesso necessário à equipe e comunicar suspeitas de uso indevido. Cada usuário responde pelas atividades realizadas com sua conta. É proibido contornar limites, testar vulnerabilidades sem autorização, inserir conteúdo ilícito ou utilizar a plataforma para violar direitos.</p>
+  <h2>4. Teste, planos e implantação</h2><p>Os planos possuem teste de 7 dias e permanência mínima de 6 meses, quando assim indicado na proposta. A implantação custa R$ 240 nos planos Básico e Extensão e R$ 120 por unidade no Plano Rede. O teste atual não gera cobrança automática. Uma futura cobrança recorrente somente será ativada após cadastro do meio de pagamento, informação clara e aceite expresso.</p>
+  <h2>5. Pagamentos e inadimplência</h2><p>Preços, vencimentos, reajustes, impostos, descontos e formas de pagamento são definidos na contratação. O atraso poderá acarretar aviso, limitação ou suspensão proporcional do serviço, preservados os prazos e direitos previstos no contrato e na legislação.</p>
+  <h2>6. Disponibilidade e terceiros</h2><p>A NexaWi busca manter a plataforma disponível e segura, mas pode realizar manutenções e depender de internet, hospedagem, meios de pagamento, mensageria, catracas e outros serviços de terceiros. Disponibilidade de integrações e seus custos devem ser confirmados previamente.</p>
+  <h2>7. Dados, conteúdo e LGPD</h2><p>O cliente permanece responsável pela origem, qualidade, base legal e uso dos dados inseridos por sua operação. A NexaWi tratará esses dados nos limites da prestação do serviço, conforme a Política de Privacidade e as cláusulas de proteção de dados do contrato.</p>
+  <h2>8. Propriedade intelectual</h2><p>A plataforma, código, marca, interfaces, documentação e materiais NexaWi permanecem de seus respectivos titulares. O cliente recebe licença limitada, não exclusiva e temporária durante a contratação. Dados e conteúdos próprios do cliente continuam pertencendo ao cliente ou aos titulares correspondentes.</p>
+  <h2>9. Suspensão, cancelamento e exportação</h2><p>As regras de aviso prévio, permanência, valores pendentes e encerramento seguem o contrato. Antes do encerramento definitivo, o cliente poderá solicitar exportação tecnicamente disponível dos seus dados, respeitados obrigações legais, segurança e formatos existentes.</p>
+  <h2>10. Suporte e comunicações</h2><p>O canal oficial é <a href={`mailto:${company.supportEmail}`}>{company.supportEmail}</a>. O atendimento digital é 24/7 para recebimento; prazos de resposta e níveis de serviço dependem do plano e da criticidade.</p>
+  <h2>11. Lei e foro</h2><p>Aplica-se a legislação brasileira. Em relações empresariais, fica indicado o foro de {company.city}/{company.state}, sem prejuízo de foro obrigatório previsto em lei.</p>
+</LegalPage>}

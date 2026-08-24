@@ -43,3 +43,18 @@ export async function requireOrganization() {
   if (!context.activeOrganization) redirect("/onboarding");
   return context;
 }
+
+export async function requirePlatformAdmin() {
+  const context = await getUserContext();
+  if (!isPlatformOperator(context)) redirect("/dashboard");
+  return context;
+}
+
+export function isPlatformOperator(context: Awaited<ReturnType<typeof getUserContext>>) {
+  if (context.profile?.platform_role === "super_admin") return true;
+  return context.memberships.some((membership) => {
+    const organization = membership.organization as unknown as { slug?: string } | null;
+    const roles = (membership.membership_roles ?? []) as unknown as Array<{ role?: { code?: string } | null }>;
+    return organization?.slug === "smart-tech" && roles.some((item) => item.role?.code === "owner");
+  });
+}

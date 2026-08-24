@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
-import { cache } from "react";
+import { cache, type CSSProperties } from "react";
 import {
   ArrowDown,
   ArrowUpRight,
@@ -18,7 +18,6 @@ import {
   Play,
   ShieldCheck,
   Sparkles,
-  Star,
   Target,
   TrendingUp,
   Users,
@@ -29,9 +28,10 @@ import { captureGymLeadAction } from "./actions";
 import { createOperationalClient, money } from "@/lib/supabase/operational";
 import styles from "./page.module.css";
 
+type GymBranding = { demo?:boolean;logo_url?:string;eyebrow?:string;headline?:string;headline_accent?:string;description?:string;primary_color?:string;instagram?:string;hours?:string[];modalities?:Array<{title:string;description:string}>;team?:Array<{name:string;role:string;specialty:string}>;seo_title?:string;seo_description?:string };
 type SiteData = {
-  organization: { name: string; slug: string; phone?: string };
-  branding: Record<string, unknown>;
+  organization: { name: string; slug: string; phone?: string; email?:string };
+  branding: GymBranding;
   branches: Array<{
     id: string;
     name: string;
@@ -131,8 +131,8 @@ export async function generateMetadata({
 
   if (!site) return {};
 
-  const title = `${site.organization.name} | Treine com propósito`;
-  const description = `Conheça a estrutura, os planos e a experiência da ${site.organization.name}. Agende seu primeiro treino.`;
+  const title = site.branding.seo_title || `${site.organization.name} | Treine com propósito`;
+  const description = site.branding.seo_description || `Conheça a estrutura, os planos e a experiência da ${site.organization.name}. Agende seu primeiro treino.`;
 
   return {
     title: { absolute: title },
@@ -158,16 +158,19 @@ export default async function GymPublicPage({
   const site = await getPublicSite(slug);
 
   if (!site) notFound();
+  const branding=site.branding||{};
+  const primaryColor=/^#[0-9a-f]{6}$/i.test(branding.primary_color||"")?branding.primary_color:"#8bff2e";
+  const modalities=modalityCards.map((item,index)=>({...item,...(branding.modalities?.[index]||{})}));
   const phoneHref = site.organization.phone
     ? `tel:${site.organization.phone.replace(/[^+\d]/g, "")}`
     : "#experimental";
 
   return (
-    <main className={styles.site}>
+    <main className={styles.site} style={{"--accent":primaryColor} as CSSProperties}>
+      {branding.demo&&<div className={styles.demoNotice}>DEMONSTRAÇÃO FICTÍCIA · MARCA, NOMES, CONTATOS, PLANOS E ENDEREÇO SÃO ILUSTRATIVOS</div>}
       <header className={styles.header}>
         <a className={styles.brand} href="#inicio" aria-label={`${site.organization.name}, início`}>
-          <span className={styles.brandMark}><Dumbbell size={19} strokeWidth={2.4} /></span>
-          <span>{site.organization.name}</span>
+          {branding.logo_url?<Image src={branding.logo_url} alt={site.organization.name} width={190} height={51} className={styles.brandLogo}/>:<><span className={styles.brandMark}><Dumbbell size={19} strokeWidth={2.4} /></span><span>{site.organization.name}</span></>}
         </a>
         <nav className={styles.nav} aria-label="Navegação principal">
           <a href="#modalidades">Modalidades</a>
@@ -192,24 +195,16 @@ export default async function GymPublicPage({
         <div className={styles.heroShade} />
         <div className={styles.heroGrid} />
         <div className={styles.heroContent}>
-          <div className={styles.heroEyebrow}><span className={styles.liveDot} />Seu melhor ritmo começa aqui</div>
-          <h1>Não é só treino.<span>É a sua virada.</span></h1>
-          <p>
-            Um ambiente que inspira, profissionais que orientam e uma comunidade que faz você continuar.
-            Venha descobrir o que muda quando o treino finalmente combina com você.
-          </p>
+          <div className={styles.heroEyebrow}><span className={styles.liveDot} />{branding.eyebrow||"Seu melhor ritmo começa aqui"}</div>
+          <h1>{branding.headline||"Não é só treino."}<span>{branding.headline_accent||"É a sua virada."}</span></h1>
+          <p>{branding.description||"Um ambiente que inspira, profissionais que orientam e uma comunidade que faz você continuar."}</p>
           <div className={styles.heroActions}>
             <a className={styles.primaryButton} href="#experimental">Quero viver essa experiência <ArrowUpRight size={17} /></a>
             <a className={styles.ghostButton} href="#modalidades"><span><Play size={13} fill="currentColor" /></span>Explorar a academia</a>
           </div>
           <div className={styles.heroProof}>
-            <div className={styles.avatarStack} aria-hidden="true"><span>F</span><span>R</span><span>M</span></div>
-            <div>
-              <span className={styles.stars} aria-label="Experiência cinco estrelas">
-                {[1, 2, 3, 4, 5].map((star) => <Star key={star} size={12} fill="currentColor" />)}
-              </span>
-              <small>Treino com direção, cuidado e energia</small>
-            </div>
+            <span className={styles.brandMark}><ShieldCheck size={16}/></span>
+            <div><small>{branding.demo?"Experiência fictícia criada para demonstrar o potencial do site":"Treino com direção, cuidado e energia"}</small></div>
           </div>
         </div>
         <a className={styles.scrollCue} href="#movimento" aria-label="Continuar a página"><ArrowDown size={16} /></a>
@@ -231,7 +226,7 @@ export default async function GymPublicPage({
           <p>Diferentes caminhos, um mesmo objetivo: criar uma rotina que você consiga manter e tenha orgulho de viver.</p>
         </div>
         <div className={styles.modalityGrid}>
-          {modalityCards.map((modality) => {
+          {modalities.map((modality) => {
             const Icon = modality.icon;
             return (
               <article className={styles.modalityCard} key={modality.title}>
@@ -291,6 +286,8 @@ export default async function GymPublicPage({
         </div>
       </section>
 
+      {!!branding.team?.length&&<section className={styles.teamSection}><div className={styles.centerHeading}><span className={styles.kicker}><Users size={14}/> Presença que orienta</span><h2>Gente preparada para acompanhar cada fase.</h2><p>Conheça a equipe apresentada nesta experiência demonstrativa.</p></div><div className={styles.teamGrid}>{branding.team.map((member,index)=><article key={`${member.name}-${index}`}><span>0{index+1}</span><div className={styles.teamAvatar}>{member.name.split(" ").map(part=>part[0]).slice(0,2).join("")}</div><h3>{member.name}</h3><strong>{member.role}</strong><p>{member.specialty}</p></article>)}</div></section>}
+
       <section className={styles.community}>
         <Image src="/images/gym-site/functional-community.png" alt="Comunidade treinando junta em uma aula funcional" fill sizes="100vw" />
         <div className={styles.communityShade} />
@@ -341,7 +338,8 @@ export default async function GymPublicPage({
         <div className={styles.unitsIntro}>
           <span className={styles.kicker}><MapPin size={14} /> Perto da sua rotina</span>
           <h2>Seu lugar de treinar está mais perto do que parece.</h2>
-          <p>Escolha a unidade, agende sua experiência e venha sentir o ambiente pessoalmente.</p>
+          <p>Escolha a unidade, confira os horários e agende sua experiência.</p>
+          {!!branding.hours?.length&&<div className={styles.hoursList}>{branding.hours.map(item=><span key={item}><Clock3 size={13}/>{item}</span>)}</div>}
           <a className={styles.textLink} href={phoneHref}>Falar com a academia <MessageCircle size={16} /></a>
         </div>
         <div className={styles.unitList}>
@@ -408,10 +406,10 @@ export default async function GymPublicPage({
       </section>
 
       <footer className={styles.footer}>
-        <a className={styles.brand} href="#inicio"><span className={styles.brandMark}><Dumbbell size={18} /></span><span>{site.organization.name}</span></a>
+        <a className={styles.brand} href="#inicio">{branding.logo_url?<Image src={branding.logo_url} alt={site.organization.name} width={180} height={48} className={styles.brandLogo}/>:<><span className={styles.brandMark}><Dumbbell size={18} /></span><span>{site.organization.name}</span></>}</a>
         <p>Movimento muda tudo. Comece pelo seu.</p>
-        <div><a href="#planos">Planos</a><a href="#unidades">Unidades</a><a href="#experimental">Contato</a></div>
-        <small>Imagens ilustrativas · Site criado com NexaWi Academias</small>
+        <div><a href="#planos">Planos</a><a href="#unidades">Unidades</a>{branding.instagram&&<span>{branding.instagram}</span>}<a href="#experimental">Contato</a></div>
+        <small>{branding.demo?"Academia e informações fictícias para demonstração comercial · Imagens ilustrativas":"Imagens ilustrativas"} · Site criado com NexaWi Academias</small>
       </footer>
     </main>
   );

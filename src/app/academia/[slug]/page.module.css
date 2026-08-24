@@ -8,6 +8,8 @@
   background: var(--ink);
   color: #f4fff7;
 }
+.demoNotice { position:relative; z-index:20; padding:9px 16px; border-bottom:1px solid rgba(255,214,94,.22); background:rgba(255,214,94,.08); color:#ffe29a; font:750 8px var(--font-geist-mono); letter-spacing:.11em; text-align:center; }
+.brandLogo { width:auto; height:38px; object-fit:contain; }
 
 .header {
   position: absolute;
@@ -389,6 +391,14 @@
 .journeySteps p { margin: 8px 0 0; color: rgba(230, 249, 236, 0.43); font-size: 11px; line-height: 1.55; }
 
 .community { position: relative; min-height: 780px; display: grid; align-items: center; overflow: hidden; }
+.teamSection { width:min(1280px,calc(100% - 64px)); margin:0 auto; padding:40px 0 150px; }
+.teamGrid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:55px; }
+.teamGrid article { position:relative; min-height:330px; padding:28px; border:1px solid var(--line); border-radius:22px; background:linear-gradient(145deg,rgba(17,30,23,.75),rgba(7,12,9,.88)); }
+.teamGrid article>span { position:absolute; top:20px; right:20px; color:rgba(238,255,243,.25); font:700 9px var(--font-geist-mono); }
+.teamAvatar { width:82px; height:82px; display:grid; place-items:center; margin-top:28px; border:1px solid rgba(139,255,46,.3); border-radius:50%; background:rgba(139,255,46,.08); color:var(--accent); font-size:22px; font-weight:800; }
+.teamGrid h3 { margin:30px 0 8px; font-size:23px; letter-spacing:-.04em; }
+.teamGrid strong { color:var(--accent); font-size:10px; text-transform:uppercase; letter-spacing:.1em; }
+.teamGrid p { color:rgba(230,249,236,.45); font-size:11px; }
 .community > img { object-fit: cover; object-position: center; }
 .communityShade { z-index: 1; background: linear-gradient(90deg, rgba(4, 8, 6, 0.98), rgba(4, 8, 6, 0.72) 38%, rgba(4, 8, 6, 0.12) 76%), linear-gradient(0deg, rgba(4, 8, 6, 0.78), transparent 45%); }
 .communityCopy { position: relative; z-index: 2; width: min(1280px, calc(100% - 64px)); margin: 0 auto; }
@@ -432,6 +442,9 @@
 .units { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 95px; padding: 50px 0 150px; }
 .unitsIntro { align-self: center; }
 .unitList { border-top: 1px solid var(--line); }
+.hoursList { display:grid; gap:8px; margin-top:22px; }
+.hoursList span { display:flex; align-items:center; gap:8px; color:rgba(231,248,236,.55); font-size:10px; }
+.hoursList svg { color:var(--accent); }
 .unitList article { min-height: 150px; display: grid; grid-template-columns: 54px 1fr auto; gap: 20px; align-items: center; padding: 22px 0; border-bottom: 1px solid var(--line); }
 .unitIndex { color: var(--accent); font: 700 9px var(--font-geist-mono); }
 .unitList small { color: rgba(233, 251, 239, 0.32); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; }
@@ -534,6 +547,7 @@
   .communityCopy { padding-bottom: 80px; }
   .plans { padding: 110px 0; }
   .planGrid { grid-template-columns: 1fr; max-width: 620px; margin-right: auto; margin-left: auto; }
+  .teamGrid { grid-template-columns:1fr; max-width:620px; margin-right:auto; margin-left:auto; }
   .units, .faq { grid-template-columns: 1fr; padding: 100px 0; }
   .finalCta { grid-template-columns: 1fr; }
   .finalVisual { min-height: 650px; }
@@ -545,6 +559,7 @@
   .headerCta { padding: 11px 13px; font-size: 0; }
   .headerCta svg { margin: 0; }
   .brand > span:last-child { max-width: 210px; }
+  .brandLogo { height:30px; max-width:175px; }
   .hero { min-height: 790px; }
   .heroContent { padding-bottom: 78px; }
   .hero h1 { margin-top: 20px; font-size: clamp(3.25rem, 16vw, 4.8rem); }

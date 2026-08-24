@@ -1,5 +1,5 @@
 import { Bell, Dumbbell, LogOut, Search } from "lucide-react";
-import { requireOrganization } from "@/lib/auth/session";
+import { isPlatformOperator, requireOrganization } from "@/lib/auth/session";
 import { logoutAction } from "@/app/(auth)/actions";
 import { DashboardNav } from "./dashboard-nav";
 import "./dashboard.css";
@@ -17,7 +17,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <aside className="dashboard-sidebar">
         <a href="/dashboard" className="dashboard-brand"><span><Dumbbell size={18} /></span><div>NEXAWI <strong>ACADEMIAS</strong></div></a>
         <div className="organization-switcher"><small>ORGANIZAÇÃO ATIVA</small><strong>{organization.name}</strong></div>
-        <DashboardNav />
+        <DashboardNav isPlatformAdmin={isPlatformOperator(context)} />
         <div className="sidebar-bottom"><form action={logoutAction}><button><LogOut size={16} /> Sair da plataforma</button></form></div>
       </aside>
       <main className="dashboard-main">

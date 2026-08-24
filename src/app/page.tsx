@@ -41,7 +41,7 @@ export default function Home() {
             em um ecossistema desenhado para crescer com você.
           </p>
           <div className="hero-actions">
-            <Link className="primary-action" href="/cadastro">Quero evoluir minha academia <ArrowUpRight size={18} /></Link>
+            <Link className="primary-action" href="/demonstracao">Agendar demonstração <ArrowUpRight size={18} /></Link>
             <Link className="secondary-action" href="/plataforma"><span className="pulse-dot" /> Explorar plataforma</Link>
           </div>
           <div className="trust-line">

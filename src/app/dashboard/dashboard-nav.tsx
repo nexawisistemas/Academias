@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, BarChart3, Building2, CalendarDays, CircleDollarSign, ClipboardPlus, Dumbbell, Gauge, History, Layers3, MessageCircleMore, Settings2, Target, UsersRound } from "lucide-react";
+import { Activity, BarChart3, Building2, CalendarDays, CircleDollarSign, ClipboardPlus, Dumbbell, Gauge, History, Layers3, MessageCircleMore, Settings2, SlidersHorizontal, Target, UsersRound } from "lucide-react";
 
 const items = [
   { href: "/dashboard", label: "Visão geral", icon: Gauge },
@@ -22,7 +22,8 @@ const items = [
   { href: "/dashboard/configuracoes", label: "Config.", icon: Settings2 },
 ];
 
-export function DashboardNav() {
+export function DashboardNav({ isPlatformAdmin = false }: { isPlatformAdmin?: boolean }) {
   const pathname = usePathname();
-  return <nav className="dashboard-nav" aria-label="Navegação do painel">{items.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={pathname === href || pathname.startsWith(`${href}/`) ? "active" : ""}><Icon size={17} />{label}</Link>)}</nav>;
+  const visibleItems = isPlatformAdmin ? [...items, { href: "/dashboard/plataforma", label: "NexaWi", icon: SlidersHorizontal }] : items;
+  return <nav className="dashboard-nav" aria-label="Navegação do painel">{visibleItems.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={pathname === href || pathname.startsWith(`${href}/`) ? "active" : ""}><Icon size={17} />{label}</Link>)}</nav>;
 }
