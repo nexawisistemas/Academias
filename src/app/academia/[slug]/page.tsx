@@ -170,7 +170,7 @@ export default async function GymPublicPage({
       {branding.demo&&<div className={styles.demoNotice}>DEMONSTRAÇÃO FICTÍCIA · MARCA, NOMES, CONTATOS, PLANOS E ENDEREÇO SÃO ILUSTRATIVOS</div>}
       <header className={styles.header}>
         <a className={styles.brand} href="#inicio" aria-label={`${site.organization.name}, início`}>
-          {branding.logo_url?<Image src={branding.logo_url} alt={site.organization.name} width={190} height={51} className={styles.brandLogo}/>:<><span className={styles.brandMark}><Dumbbell size={19} strokeWidth={2.4} /></span><span>{site.organization.name}</span></>}
+          {branding.logo_url?<Image src={branding.logo_url} alt={site.organization.name} width={190} height={51} className={styles.brandLogo} loading="eager"/>:<><span className={styles.brandMark}><Dumbbell size={19} strokeWidth={2.4} /></span><span>{site.organization.name}</span></>}
         </a>
         <nav className={styles.nav} aria-label="Navegação principal">
           <a href="#modalidades">Modalidades</a>
